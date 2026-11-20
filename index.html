@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cartilla Digital — Prototipo Hi-Fi navegable</title>
+<style>
+:root{
+  --brand:#0A6C74;--brand-d:#064E55;--brand-l:#D9EFF1;
+  --bg:#EEF3F4;--card:#fff;--ink:#12262B;--muted:#4D6267;--line:#D3DEE0;
+  --ok:#1B7F3B;--ok-bg:#E1F3E7;--warn:#7A4E00;--warn-bg:#FFEDBF;--late:#A6211A;--late-bg:#FCE3E0;
+  --gray:#46575C;--gray-bg:#E6ECEE;--rev:#1D4FA3;--rev-bg:#E2EBFA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;background:#DCE5E7;color:var(--ink);min-height:100vh}
+button{font:inherit;cursor:pointer;color:inherit}
+.stage{display:flex;gap:28px;justify-content:center;align-items:flex-start;padding:24px;max-width:1100px;margin:0 auto}
+.guide{width:310px;background:#fff;border-radius:16px;padding:20px;position:sticky;top:24px;box-shadow:0 2px 10px rgba(0,0,0,.08);font-size:14px;line-height:1.45}
+.guide h1{font-size:18px;color:var(--brand-d);margin-bottom:2px}
+.guide .ver{color:var(--muted);font-size:12px;margin-bottom:12px}
+.guide .warnbox{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-bottom:12px}
+.guide h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:12px 0 6px}
+.steps{list-style:none;display:flex;flex-direction:column;gap:4px}
+.steps button{width:100%;text-align:left;background:#F4F8F9;border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;gap:8px;align-items:center;font-size:13.5px}
+.steps button b{background:var(--brand);color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.steps button.on{background:var(--brand-l);border-color:var(--brand)}
+.ctl{display:flex;flex-wrap:wrap;gap:6px}
+.ctl button{background:#fff;border:1px solid var(--brand);color:var(--brand-d);border-radius:999px;padding:6px 12px;font-size:13px}
+.ctl button.act{background:var(--brand);color:#fff}
+.legend{display:grid;gap:4px;font-size:12.5px}
+.phone-wrap{flex:none}
+.phone{width:390px;height:800px;background:var(--bg);border-radius:38px;border:10px solid #1B2B2F;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.statusbar{height:30px;background:var(--brand-d);color:#fff;font-size:12px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;flex:none}
+.offbanner[hidden]{display:none}
+.offbanner{background:#2B3A3E;color:#fff;font-size:13px;padding:7px 14px;display:flex;gap:8px;align-items:center;flex:none}
+.appbar{background:var(--brand);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px;min-height:56px;flex:none}
+.appbar h1{font-size:19px;font-weight:700;flex:1;line-height:1.2}
+.iconbtn{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:12px;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.content{flex:1;overflow-y:auto;padding:14px;font-size:16px;line-height:1.4;outline:none}
+.tabs{display:flex;background:#fff;border-top:1px solid var(--line);flex:none}
+.tabs button{flex:1;background:none;border:0;padding:8px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12.5px;color:var(--muted);min-height:58px}
+.tabs button.on{color:var(--brand-d);font-weight:700;box-shadow:inset 0 3px 0 var(--brand)}
+svg.i{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+svg.i.s{width:18px;height:18px}
+.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.h2{font-size:18px;font-weight:700;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;border-radius:14px;border:2px solid var(--brand);background:var(--brand);color:#fff;font-weight:700;font-size:16.5px;padding:10px 14px;margin-top:8px}
+.btn.sec{background:#fff;color:var(--brand-d)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--brand-d);text-decoration:underline;min-height:44px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.danger{background:#fff;border-color:var(--late);color:var(--late)}
+.avatar{width:52px;height:52px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px;flex:none}
+.pcard{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;border:2px solid transparent;border-radius:16px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08);min-height:76px}
+.pcard.on{border-color:var(--brand)}
+.pcard .t{flex:1}
+.pcard .n{font-weight:700;font-size:18px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:3px 10px 3px 7px;font-size:13px;font-weight:700;line-height:1.3}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.late{background:var(--late-bg);color:var(--late)}.pill.gray{background:var(--gray-bg);color:var(--gray)}.pill.rev{background:var(--rev-bg);color:var(--rev)}
+.idbar{display:flex;align-items:center;gap:10px;background:#fff;border-radius:16px;padding:10px 12px;margin-bottom:12px;border-left:8px solid var(--c,#0A6C74);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.idbar .avatar{width:44px;height:44px;font-size:19px}
+.idbar .t{flex:1;line-height:1.2}
+.idbar .t b{font-size:17px}
+.idbar button{background:var(--brand-l);border:0;border-radius:10px;padding:8px 10px;font-size:13.5px;color:var(--brand-d);font-weight:700;min-height:40px}
+.bar{height:16px;background:#DCE6E8;border-radius:999px;overflow:hidden;margin:8px 0 6px}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:999px}
+.vrow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#fff;border:0;border-radius:14px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-left:8px solid var(--bc);min-height:68px}
+.vrow.ok{--bc:var(--ok)}.vrow.warn{--bc:#C58A00}.vrow.late{--bc:var(--late)}.vrow.gray{--bc:#8EA0A5}
+.vrow .t{flex:1}.vrow .n{font-weight:700;font-size:16.5px}
+.note{font-size:13px;color:var(--muted);margin-top:6px}
+.banner{border-radius:12px;padding:9px 11px;font-size:13.5px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+.banner.info{background:var(--rev-bg);color:#16397A}.banner.warn{background:var(--warn-bg);color:var(--warn)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 8px 0}
+.pad button{height:62px;border-radius:16px;border:2px solid var(--line);background:#fff;font-size:26px;font-weight:700}
+.dots{display:flex;gap:14px;justify-content:center;margin:16px 0 8px}
+.dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--brand);display:block}
+.dots i.f{background:var(--brand)}
+.err{color:var(--late);font-weight:700;text-align:center;min-height:22px;font-size:14.5px}
+label{display:block;font-weight:700;font-size:15px;margin:10px 0 4px}
+input[type=text],input[type=date],select,textarea{width:100%;font:inherit;font-size:16.5px;padding:11px 12px;border-radius:12px;border:2px solid #9FB3B8;background:#fff;min-height:48px}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid #F2A900;outline-offset:2px}
+.tog{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.sw{width:56px;height:32px;border-radius:999px;background:#9FB3B8;border:0;position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s}
+.sw[aria-checked=true]{background:var(--brand)}.sw[aria-checked=true]::after{left:28px}
+.layer{position:absolute;inset:0;background:rgba(10,25,28,.5);display:flex;align-items:flex-end;z-index:20}
+.sheet{background:#fff;width:100%;border-radius:22px 22px 0 0;padding:16px 16px 20px;max-height:92%;overflow-y:auto}
+.toast{position:absolute;left:12px;right:12px;bottom:76px;background:#1B2B2F;color:#fff;border-radius:14px;padding:12px 14px;font-size:14.5px;z-index:30;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.notif{position:absolute;left:10px;right:10px;top:40px;background:#fff;color:var(--ink);border-radius:16px;padding:12px;z-index:40;box-shadow:0 8px 22px rgba(0,0,0,.4);text-align:left;border:0;display:block;width:calc(100% - 20px);font-size:14px}
+.notif b{color:var(--brand-d)}
+.watermark{position:relative;overflow:hidden}
+.watermark::after{content:"NO OFICIAL · PROTOTIPO ACADÉMICO";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:rotate(-24deg);font-weight:800;font-size:22px;color:rgba(166,33,26,.16);text-align:center;pointer-events:none;line-height:1.2;padding:20px}
+table.mini{width:100%;border-collapse:collapse;font-size:14px}
+table.mini td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.hero{text-align:center;padding:22px 8px 6px}
+.logo{width:76px;height:76px;border-radius:22px;background:var(--brand);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;color:#fff}
+.logo svg{width:44px;height:44px}
+@media(max-width:860px){.guide{display:none}.stage{padding:0}.phone{width:100vw;height:100vh;border:0;border-radius:0}}
+@media(max-width:1000px) and (min-width:861px){.stage{flex-direction:column;align-items:center}.guide{position:static;width:390px}}
+</style>
+</head>
+<body>
+<div class="stage">
+<aside class="guide" aria-label="Guía del prototipo">
+  <h1>Cartilla Digital · Prototipo Hi-Fi</h1>
+  <div class="ver">Versión 1.0 · 18 nov 2026 · Proyecto ODS 3 (ITSON)</div>
+  <div class="warnbox"><b>Prototipo académico.</b> Todos los datos son ficticios. No es un servicio oficial ni está vinculado con IMSS, Secretaría de Salud o clínicas. Los esquemas y campañas son ilustrativos y por validar.</div>
+  <h2>Flujo principal (ir a un paso)</h2>
+  <ol class="steps" id="steps"></ol>
+  <h2>Controles de demo</h2>
+  <div class="ctl">
+    <button id="bNotif">Simular aviso</button>
+    <button id="bOff" aria-pressed="false">Sin conexión: apagado</button>
+    <button id="bReset">Reiniciar demo</button>
+  </div>
+  <h2>Leyenda de estados</h2>
+  <div class="legend" id="legend"></div>
+</aside>
+<main class="phone-wrap">
+ <div class="phone" id="phone">
+  <div class="statusbar"><span>9:41</span><span id="netchip">Conectado</span></div>
+  <div class="offbanner" id="offbanner" hidden></div>
+  <header class="appbar" id="appbar"></header>
+  <section class="content" id="content" tabindex="-1" aria-live="polite"></section>
+  <nav class="tabs" id="tabs" aria-label="Navegación principal"></nav>
+  <div id="over"></div>
+ </div>
+</main>
+</div>
+<script>
+"use strict";
+/* ---------- Iconos ---------- */
+const P={check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',alert:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',q:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 115 0c0 1.8-2.5 2-2.5 4M12 17v.5"/>',cal:'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',hour:'<path d="M6 3h12M6 21h12M7 3c0 6 10 6 10 0M7 21c0-6 10-6 10 0"/>',back:'<path d="M15 5l-7 7 7 7"/>',plus:'<path d="M12 5v14M5 12h14"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-4 3-6 6.5-6s6.5 2 6.5 6M16 5a3.5 3.5 0 010 7M18 14c2.5.6 3.5 2.6 3.5 6"/>',list:'<path d="M8 6h12M8 12h12M8 18h12M4 6h.5M4 12h.5M4 18h.5"/>',pin:'<path d="M12 21s7-6.2 7-11.5A7 7 0 005 9.5C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/>',file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',wifi:'<path d="M2 9a15 15 0 0120 0M5 12.500a10 10 0 0114 0M8.500 16a5 5 0 017 0M12 19.500v.5"/><path d="M3 3l18 18"/>',bell:'<path d="M6 17V11a6 6 0 0112 0v6l2 2H4zM10 21h4"/>',shield:'<path d="M12 3l8 3v6c0 5-3.500 8-8 9-4.500-1-8-4-8-9V6z"/><path d="M8.500 12l2.500 2.500L16 9.500"/>',cam:'<path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.500" r="3.500"/>',swap:'<path d="M7 7h12l-3-3M17 17H5l3 3"/>',finger:'<path d="M6 11a6 6 0 0112 0v2M9 20c0-3 0-6 3-6s3 3 3 6M12 11v3M4 15c.5 2 .8 3.500 1.500 5M20 14c-.2 2-.6 4-1.500 6"/>',bk:'<path d="M5 12h14"/>'};
+const ic=(n,s)=>`<svg class="i ${s||''}" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+
+/* ---------- Datos ficticios ---------- */
+const TODAY='2026-11-18';
+const MES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const fmt=d=>{if(!d)return'';const [y,m,dd]=d.split('-').map(Number);return `${dd} ${MES[m-1]} ${y}`};
+const addDays=(d,n)=>{const t=new Date(d+'T12:00:00');t.setDate(t.getDate()+n);return t.toISOString().slice(0,10)};
+const CAT={
+ bcg:['BCG','Protege contra las formas graves de tuberculosis.'],
+ hepb:['Hepatitis B','Protege el hígado contra el virus de la hepatitis B.'],
+ penta:['Pentavalente acelular','Una sola vacuna que protege contra difteria, tosferina, tétanos, polio y meningitis por Hib.'],
+ neumo:['Neumocócica conjugada','Protege contra infecciones graves como neumonía y meningitis por neumococo.'],
+ srp:['SRP (triple viral)','Protege contra sarampión, rubéola y paperas.'],
+ srp2:['SRP · segunda dosis','Segunda dosis de la triple viral para reforzar la protección.'],
+ dpt:['DPT · refuerzo','Refuerza la protección contra difteria, tosferina y tétanos.'],
+ flu:['Influenza estacional','Protege contra la gripe de temporada; se aplica cada año.'],
+ vph:['VPH','Previene infecciones por el virus del papiloma humano.'],
+ td:['Td (tétanos y difteria)','Refuerzo para mantener la protección contra tétanos y difteria en personas adultas.'],
+ neumoA:['Neumocócica (personas mayores)','Protege contra neumonía grave en personas adultas mayores.']
+};
+const V=(k,status,date,extra)=>Object.assign({k,status,date:date||null,lote:null,src:'demo',rev:null,remind:null},extra||{});
+function seed(){return{
+ maria:{id:'maria',name:'María',rel:'Yo',age:'32 años',color:'#0A6C74',vacs:[V('flu','due',null,{target:'2026-11-26'}),V('td','applied','2019-03-12'),V('srp','unknown')]},
+ mateo:{id:'mateo',name:'Mateo',rel:'Hijo menor',age:'4 años',color:'#B4541A',vacs:[V('bcg','applied','2022-06-02'),V('hepb','applied','2022-08-10'),V('penta','applied','2023-01-20'),V('neumo','applied','2023-01-20'),V('srp','applied','2023-07-15'),V('dpt','due',null,{target:'2026-11-26',camp:'c1'}),V('flu','due',null,{target:'2026-11-26',camp:'c1'})]},
+ sofia:{id:'sofia',name:'Sofía',rel:'Hija',age:'9 años',color:'#6B3FA0',vacs:[V('bcg','applied','2017-04-01'),V('srp','applied','2018-04-20'),V('srp2','late',null,{target:'2023-04-20'}),V('dpt','applied','2021-05-11'),V('flu','due',null,{target:'2026-11-26',camp:'c1'}),V('vph','future')]},
+ ramon:{id:'ramon',name:'Don Ramón',rel:'Papá',age:'68 años',color:'#2F6E2F',vacs:[V('td','late',null,{target:'2016-01-01'}),V('flu','due',null,{target:'2026-11-26',camp:'c1'}),V('neumoA','unknown')]}
+}}
+const CAMPS=[
+ {id:'c1',name:'Campaña de invierno · Influenza y refuerzo DPT',place:'Centro de Salud Urbano (lugar de ejemplo), Hermosillo',hours:'Lun a vie, 8:00–14:00',until:'2026-11-27',vac:['dpt','flu'],avail:'Disponibilidad de ejemplo: "dosis disponibles"',upd:'18 nov 2026, 8:00 (dato ficticio)'},
+ {id:'c2',name:'Jornada de actualización de esquemas',place:'Módulo móvil en plaza (lugar de ejemplo)',hours:'Sáb 5 dic, 9:00–13:00',until:'2026-12-05',vac:['td','srp','srp2','neumoA'],avail:'Disponibilidad de ejemplo: "por confirmar"',upd:'17 nov 2026, 16:30 (dato ficticio)'},
+ {id:'c3',name:'Vacunación escolar',place:'Escuelas primarias de la zona (ejemplo)',hours:'Según calendario escolar',until:'2026-12-18',vac:['vph','dpt'],avail:'Disponibilidad de ejemplo: "sin información"',upd:'12 nov 2026, 11:00 (dato ficticio)'}
+];
+const ST={applied:{l:'Aplicada',c:'ok',i:'check'},due:{l:'Próxima',c:'warn',i:'clock'},late:{l:'Atrasada',c:'late',i:'alert'},unknown:{l:'Sin registro',c:'gray',i:'q'},future:{l:'Aún no corresponde',c:'gray',i:'cal'}};
+
+/* ---------- Estado ---------- */
+let S;
+function fresh(){S={view:'pin',stack:[],pin:'',tries:3,err:'',profiles:seed(),cur:'mateo',vid:null,cid:'c1',offline:false,over:null,toast:null,folio:0,add:{name:'',birth:'',rel:'Hijo/a'},review:{photo:false,note:''},mark:{date:TODAY,lote:''}}}
+fresh();
+const $=s=>document.querySelector(s);
+const cur=()=>S.profiles[S.cur];
+const vac=()=>cur().vacs.find(v=>v.k===S.vid);
+function counts(p){const a=p.vacs.filter(v=>v.status!=='future');return{done:a.filter(v=>v.status==='applied').length,total:a.length}}
+function origin(v){
+ if(v.rev)return `<span class="pill rev">${ic('hour','s')}En revisión · folio ${v.rev}</span>`;
+ if(v.status==='applied'&&v.src==='declared')return `<span class="pill gray">${ic('q','s')}Declarada por ti · sin verificar</span>`;
+ if(v.status==='applied')return `<span class="pill gray">${ic('q','s')}Dato de ejemplo</span>`;
+ return'';
+}
+function pill(st){const s=ST[st];return `<span class="pill ${s.c}">${ic(s.i,'s')}${s.l}</span>`}
+function go(view,opts){S.stack.push(S.view);Object.assign(S,opts||{});S.view=view;S.err='';render(true)}
+function back(){S.view=S.stack.pop()||'profiles';render(true)}
+function toast(m){S.toast=m;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{S.toast=null;render()},3200)}
+function idbar(){const p=cur();return `<div class="idbar" style="--c:${p.color}"><span class="avatar" style="background:${p.color}" aria-hidden="true">${p.name[0]}</span><div class="t"><div class="sub">Estás viendo a</div><b>${p.name}</b> · ${p.rel}, ${p.age}</div><button data-a="profiles">${ic('swap','s')} Cambiar</button></div>`}
+
+/* ---------- Vistas ---------- */
+const views={
+pin(){
+ const dots=[0,1,2,3].map(i=>`<i class="${i<S.pin.length?'f':''}"></i>`).join('');
+ const keys=[1,2,3,4,5,6,7,8,9].map(n=>`<button data-a="key" data-v="${n}" aria-label="${n}">${n}</button>`).join('');
+ return {title:'Cartilla Digital',nav:false,html:`<div class="hero"><div class="logo">${ic('shield')}</div><div class="h2">Hola, María</div><div class="sub">Escribe tu PIN de 4 números</div></div>
+ <div class="dots" role="img" aria-label="${S.pin.length} de 4 dígitos escritos">${dots}</div><div class="err" role="alert">${S.err}</div>
+ <div class="pad">${keys}<button data-a="bio" aria-label="Usar huella (simulado)">${ic('finger')}</button><button data-a="key" data-v="0" aria-label="0">0</button><button data-a="del" aria-label="Borrar">⌫</button></div>
+ <div class="banner info" style="margin-top:16px">${ic('shield','s')}<span>PIN de demostración: <b>1234</b>. Prototipo académico con datos ficticios.</span></div>
+ <button class="btn ghost" data-a="forgot">¿Olvidaste tu PIN?</button>`}},
+profiles(){
+ const cards=Object.values(S.profiles).map(p=>{const c=counts(p),pend=c.total-c.done;
+  return `<button class="pcard ${p.id===S.cur?'on':''}" data-a="pick" data-v="${p.id}" aria-label="Abrir perfil de ${p.name}"><span class="avatar" style="background:${p.color}" aria-hidden="true">${p.name[0]}</span><span class="t"><span class="n">${p.name}</span><br><span class="sub">${p.rel} · ${p.age}</span><br>${pend?`<span class="pill warn">${ic('clock','s')}${pend} por atender</span>`:`<span class="pill ok">${ic('check','s')}Al día (esquema de ejemplo)</span>`}</span></button>`}).join('');
+ return {title:'Mi familia',nav:'prof',html:`<p class="sub" style="margin-bottom:10px">Elige a quién quieres consultar. Cada persona tiene su propio historial.</p>${cards}<button class="btn sec" data-a="addp">${ic('plus')} Agregar familiar</button>`}},
+history(){
+ const p=cur(),c=counts(p),pct=c.total?Math.round(c.done/c.total*100):0;
+ const order={late:0,due:1,unknown:2,applied:3,future:4};
+ const rows=p.vacs.slice().sort((a,b)=>order[a.status]-order[b.status]).map(v=>{const s=ST[v.status];
+  return `<button class="vrow ${s.c}" data-a="open" data-v="${v.k}" aria-label="${CAT[v.k][0]}, ${s.l}. Ver detalle"><span class="t"><span class="n">${CAT[v.k][0]}</span><br>${pill(v.status)} ${v.rev?`<span class="pill rev">${ic('hour','s')}En revisión</span>`:''}<br><span class="sub">${v.status==='applied'?'Aplicada el '+fmt(v.date):v.status==='due'?'Meta: '+fmt(v.target):v.status==='late'?'Debió aplicarse en '+fmt(v.target).replace(/^\d+ /,''):v.status==='unknown'?'Agrega tu historial':'Todavía no corresponde por edad'}</span></span>${ic('back').replace('<svg','<svg style="transform:rotate(180deg)"')}</button>`}).join('');
+ return {title:'Historial',nav:'hist',html:`${idbar()}
+ <div class="card"><div class="h2">${c.done} de ${c.total} vacunas atendidas</div><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="Avance del esquema de ejemplo"><i style="width:${pct}%"></i></div><div class="sub">${pct===100?'Esquema de ejemplo completo para esta edad.':'Esquema de ejemplo para esta edad (por validar con fuente institucional).'}</div><div class="note">Última actualización: ${fmt(TODAY)}, 9:40${S.offline?' · guardado en este teléfono':''}</div></div>
+ ${rows}<div class="note" style="margin-bottom:6px">Colores y símbolos: verde ✓ aplicada · ámbar reloj próxima · rojo ! atrasada · gris sin registro o futura.</div>`}},
+detail(){
+ const p=cur(),v=vac(),s=ST[v.status],cat=CAT[v.k];
+ let act='';
+ if(v.status!=='applied'&&v.status!=='future')act+=`<button class="btn" data-a="mark">${ic('check')} Marcar como aplicada</button>`;
+ if(v.status==='applied'&&v.src==='declared'&&!v.rev)act+=`<button class="btn danger" data-a="undo">Deshacer: no se aplicó</button>`;
+ if(!v.rev&&v.status!=='future')act+=`<button class="btn sec" data-a="review">${ic('cam')} Solicitar revisión con foto del sello</button>`;
+ const when=v.status==='applied'?`<table class="mini"><tr><td>Fecha</td><td><b>${fmt(v.date)}</b></td></tr><tr><td>Lote</td><td><b>${v.lote||'No registrado'}</b></td></tr></table>`:'';
+ let rem='';
+ if(v.status==='due'||v.status==='late'){
+  const r=v.remind||{date:v.target&&v.target>=TODAY?v.target:addDays(TODAY,8),w:true,d:true};
+  rem=`<div class="card"><div class="h2">${ic('bell')} Recordatorios</div><label for="rd">Fecha de tu cita o visita</label><input type="date" id="rd" value="${r.date}" min="${TODAY}"><div class="tog"><span id="l1">7 días antes<br><span class="sub">${fmt(addDays(r.date,-7))}</span></span><button class="sw" role="switch" aria-labelledby="l1" aria-checked="${r.w}" data-a="rw"></button></div><div class="tog"><span id="l2">Mañana de la cita<br><span class="sub">${fmt(r.date)}</span></span><button class="sw" role="switch" aria-labelledby="l2" aria-checked="${r.d}" data-a="rdd"></button></div><div class="note">Los avisos llegan como notificación en este teléfono y funcionan sin conexión. No usan WhatsApp.</div>${v.remind?`<div class="banner info" style="margin-top:8px">${ic('check','s')}<span>Recordatorio guardado para el ${fmt(v.remind.date)}.</span></div>`:''}<button class="btn sec" data-a="saverem">Guardar recordatorio</button></div>`}
+ const camp=v.camp?CAMPS.find(c=>c.id===v.camp):null;
+ const cc=camp?`<div class="card"><div class="h2">${ic('pin')} Campaña relacionada</div><div>${camp.name}</div><div class="sub">Hasta el ${fmt(camp.until)} · ${camp.place}</div><button class="btn sec" data-a="camp" data-v="${camp.id}">Ver campaña y disponibilidad</button></div>`:'';
+ return {title:cat[0],nav:'hist',back:true,html:`${idbar()}<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">${pill(v.status)}${origin(v)}</div><div class="h2">¿Para qué sirve?</div><p>${cat[1]}</p><div class="note">Explicación sencilla de ejemplo; el contenido médico real debe validarse con una fuente institucional.</div>${when}${v.rev?`<div class="banner info" style="margin-top:10px">${ic('hour','s')}<span>Solicitud en revisión (folio ${v.rev}). En este prototipo nadie la revisa: quién revisa y en cuánto tiempo está por definir.</span></div>`:''}${act}</div>${rem}${cc}`}},
+campaigns(){
+ const p=cur();const items=CAMPS.map(c=>{const rel=p.vacs.some(v=>c.vac.includes(v.k)&&v.status!=='applied'&&v.status!=='future');
+  return `<button class="vrow ${rel?'warn':'gray'}" style="display:block" data-a="camp" data-v="${c.id}"><span class="n">${c.name}</span><br>${rel?`<span class="pill warn">${ic('clock','s')}Relevante para ${p.name}</span>`:`<span class="pill gray">${ic('q','s')}Sin vacunas pendientes para ${p.name}</span>`}<br><span class="sub">Hasta el ${fmt(c.until)}</span></button>`}).join('');
+ return {title:'Campañas',nav:'camp',html:`${idbar()}${S.offline?`<div class="banner warn">${ic('wifi','s')}<span>Sin conexión: la disponibilidad puede estar desactualizada.</span></div>`:''}${items}<div class="note">Campañas, lugares y disponibilidad son datos ficticios de demostración; no reflejan existencias reales.</div>`}},
+campaign(){
+ const c=CAMPS.find(x=>x.id===S.cid);const p=cur();
+ const mine=p.vacs.filter(v=>c.vac.includes(v.k)&&v.status!=='future').map(v=>`<li style="margin-left:18px">${CAT[v.k][0]} — ${ST[v.status].l}</li>`).join('')||'<li style="margin-left:18px">Ninguna vacuna de esta campaña aplica a este perfil.</li>';
+ return {title:'Detalle de campaña',nav:'camp',back:true,html:`${idbar()}<div class="card"><div class="h2">${c.name}</div><table class="mini"><tr><td>Lugar</td><td>${c.place}</td></tr><tr><td>Horario</td><td>${c.hours}</td></tr><tr><td>Vigencia</td><td>Hasta el ${fmt(c.until)}</td></tr></table><div class="banner warn" style="margin-top:10px">${ic('alert','s')}<span><b>Fuente y vigencia:</b> ${c.avail}. Actualizado: ${c.upd}. Confirma con la clínica antes de ir.</span></div><div class="h2" style="margin-top:8px">Para ${p.name}</div><ul>${mine}</ul></div>`}},
+proof(){
+ const p=cur(),ap=p.vacs.filter(v=>v.status==='applied');
+ const rows=ap.length?ap.map(v=>`<tr><td><b>${CAT[v.k][0]}</b></td><td>${fmt(v.date)}</td><td>${v.src==='declared'?'Declarada':'Ejemplo'}</td></tr>`).join(''):'<tr><td colspan="3">Sin vacunas aplicadas registradas.</td></tr>';
+ return {title:'Comprobante',nav:'proof',html:`${idbar()}<div class="card watermark"><div class="h2">Resumen de vacunación</div><div class="sub">${p.name} · ${p.rel} · ${p.age}</div><table class="mini" style="margin-top:8px"><tr><td><b>Vacuna</b></td><td><b>Fecha</b></td><td><b>Origen</b></td></tr>${rows}</table><div class="note">Generado el ${fmt(TODAY)}. Documento de demostración: no tiene firma, sello ni validez oficial.</div></div>
+ <button class="btn" data-a="pdf">${ic('file')} Descargar PDF (simulado)</button><button class="btn sec" data-a="qr">Mostrar QR de demostración</button>${S.offline?`<div class="note">Disponible sin conexión: se genera desde los datos guardados en este teléfono.</div>`:''}`}},
+review(){
+ const v=vac();
+ return {title:'Solicitar revisión',nav:'hist',back:true,html:`${idbar()}<div class="card"><div class="h2">${CAT[v.k][0]}</div><p>Toma una foto clara del sello de tu cartilla física para que alguien revise este registro.</p>
+ <button class="btn sec" data-a="photo">${ic('cam')} ${S.review.photo?'Cambiar foto (simulada)':'Tomar o elegir foto (simulada)'}</button>
+ ${S.review.photo?`<div style="margin-top:10px;border:2px dashed #7C9096;border-radius:12px;padding:18px;text-align:center;background:#F4F8F9"><svg viewBox="0 0 120 70" width="140" aria-hidden="true"><rect x="2" y="2" width="116" height="66" rx="6" fill="#fff" stroke="#7C9096"/><circle cx="40" cy="35" r="18" fill="none" stroke="#A6211A" stroke-width="3"/><path d="M30 35h20M40 25v20" stroke="#A6211A" stroke-width="2"/><path d="M70 25h36M70 35h36M70 45h24" stroke="#9FB3B8" stroke-width="4"/></svg><div class="sub">Foto simulada del sello</div></div>`:''}
+ <label for="rn">Comentario (opcional)</label><textarea id="rn" rows="2" placeholder="Ej.: el sello está en la página 3">${S.review.note}</textarea>
+ ${S.offline?`<div class="banner warn" style="margin-top:10px">${ic('wifi','s')}<span>Sin conexión: necesitas red para enviar la solicitud.</span></div>`:''}
+ <button class="btn" data-a="sendrev" ${(!S.review.photo||S.offline)?'disabled':''}>Enviar solicitud</button>
+ <div class="note">Al enviar recibirás un folio. En el prototipo nadie revisa la solicitud.</div></div>`}},
+add(){
+ const a=S.add;
+ return {title:'Agregar familiar',nav:'prof',back:true,html:`<div class="card"><label for="an">Nombre</label><input type="text" id="an" value="${a.name}" placeholder="Nombre" autocomplete="off"><label for="ab">Fecha de nacimiento</label><input type="date" id="ab" value="${a.birth}" max="${TODAY}"><label for="ar">Parentesco</label><select id="ar">${['Hijo/a','Madre','Padre','Pareja','Otro'].map(x=>`<option ${x===a.rel?'selected':''}>${x}</option>`).join('')}</select><div class="err" role="alert" style="text-align:left">${S.err}</div><button class="btn" data-a="saveadd">Crear perfil</button><div class="banner info" style="margin-top:10px">${ic('q','s')}<span>La fecha de nacimiento no dice qué vacunas ya recibió. Después podrás agregar su historial o pedir revisión.</span></div></div>`}}
+};
+const NAV=[['prof','Familia','users','profiles'],['hist','Historial','list','history'],['camp','Campañas','pin','campaigns'],['proof','Comprobante','file','proof']];
+
+/* ---------- Render ---------- */
+function render(focus){
+ const v=views[S.view]();
+ $('#appbar').innerHTML=(v.back?`<button class="iconbtn" data-a="back" aria-label="Volver">${ic('back')}</button>`:'')+`<h1>${v.title}</h1>`+(S.view!=='pin'?`<button class="iconbtn" data-a="notif" aria-label="Simular aviso de recordatorio">${ic('bell')}</button>`:'');
+ $('#content').innerHTML=v.html;
+ if(focus){$('#content').scrollTop=0}
+ $('#tabs').innerHTML=v.nav?NAV.map(n=>`<button data-a="tab" data-v="${n[3]}" class="${n[0]===v.nav?'on':''}" ${n[0]===v.nav?'aria-current="page"':''}>${ic(n[2])}${n[1]}</button>`).join(''):'';
+ $('#tabs').style.display=v.nav?'flex':'none';
+ $('#netchip').textContent=S.offline?'Sin conexión':'Conectado';
+ const ob=$('#offbanner');ob.hidden=!S.offline;ob.innerHTML=`${ic('wifi','s')}<span>Sin conexión · datos guardados el ${fmt(TODAY)}, 9:40</span>`;
+ $('#bOff').textContent='Sin conexión: '+(S.offline?'activado':'apagado');$('#bOff').classList.toggle('act',S.offline);$('#bOff').setAttribute('aria-pressed',S.offline);
+ let o='';
+ if(S.over==='mark'){const x=vac();o+=`<div class="layer" role="dialog" aria-modal="true" aria-label="Marcar como aplicada"><div class="sheet"><div class="h2">Marcar ${CAT[x.k][0]} como aplicada</div><div class="sub">Para ${cur().name}</div><label for="md">Fecha de aplicación</label><input type="date" id="md" value="${S.mark.date}" max="${TODAY}"><label for="ml">Lote (opcional)</label><input type="text" id="ml" value="${S.mark.lote}" placeholder="Ej.: A1234"><div class="banner warn" style="margin-top:10px">${ic('alert','s')}<span>Quedará como <b>declarada por ti, sin verificar</b>. Puedes deshacerlo o pedir revisión después.</span></div><button class="btn" data-a="confirmmark">Confirmar</button><button class="btn ghost" data-a="close">Cancelar</button></div></div>`}
+ if(S.over==='qr'){o+=`<div class="layer" role="dialog" aria-modal="true" aria-label="QR de demostración"><div class="sheet" style="text-align:center"><div class="h2">QR de demostración</div>${qr()}<div class="note">No es verificable ni oficial. En el producto real necesitaría un emisor y un verificador definidos.</div><button class="btn" data-a="close">Cerrar</button></div></div>`}
+ if(S.over==='forgot'){o+=`<div class="layer" role="dialog" aria-modal="true" aria-label="Recuperar PIN"><div class="sheet"><div class="h2">Recuperar PIN</div><p>La recuperación del PIN aún no está definida (pendiente de diseño). En el prototipo usa el PIN <b>1234</b> o el botón de huella.</p><button class="btn" data-a="close">Entendido</button></div></div>`}
+ if(S.notif){o+=`<button class="notif" data-a="opennotif"><b>Cartilla Digital · ahora</b><br>Recordatorio: refuerzo DPT de Mateo. Hay una campaña en el Centro de Salud Urbano (ejemplo) hasta el viernes 27 de nov.<br><span class="sub">Toca para ver el detalle</span></button>`}
+ if(S.toast)o+=`<div class="toast" role="status">${S.toast}</div>`;
+ $('#over').innerHTML=o;
+ const stepMap={pin:1,profiles:2,add:2,history:3,detail:4,review:8,campaigns:6,campaign:6,proof:7};
+ document.querySelectorAll('#steps button').forEach(b=>b.classList.toggle('on',+b.dataset.s===stepMap[S.view]));
+}
+function qr(){let r=7,s='';const n=21,c=8;let cells='';
+ const fin=(x,y)=>x<7&&y<7||x>13&&y<7||x<7&&y>13;
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){let on;
+  if(fin(x,y)){const lx=x%14,ly=y%14;const dx=x<7?x:x-14,dy=y<7?y:y-14;const m=Math.max(Math.abs(dx-3),Math.abs(dy-3));on=m===3||m<=1}
+  else{r=(r*1103515245+12345)&0x7fffffff;on=(r>>8)%2===0}
+  if(on)cells+=`<rect x="${x*c}" y="${y*c}" width="${c}" height="${c}"/>`}
+ return `<svg viewBox="0 0 168 168" width="190" role="img" aria-label="Código QR de demostración" style="margin:10px auto;display:block"><rect width="168" height="168" fill="#fff"/><g fill="#12262B">${cells}</g></svg>`}
+
+/* ---------- Eventos ---------- */
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-a]');if(!b)return;
+ const a=b.dataset.a,v=b.dataset.v;
+ const act={
+  key(){if(S.pin.length<4){S.pin+=v;if(S.pin.length===4)setTimeout(()=>{if(S.pin==='1234'){S.pin='';S.stack=[];S.view='profiles';render(true)}else{S.tries--;S.pin='';S.err=S.tries>0?`PIN incorrecto. Te quedan ${S.tries} intentos.`:'Demasiados intentos. Usa la huella o recupera el PIN.';if(S.tries<=0)S.tries=3;render()}},120);render()}},
+  del(){S.pin=S.pin.slice(0,-1);S.err='';render()},
+  bio(){S.pin='';S.stack=[];S.view='profiles';render(true)},
+  forgot(){S.over='forgot';render()},
+  close(){S.over=null;render()},
+  pick(){S.cur=v;go('history')},
+  profiles(){S.stack=[];S.view='profiles';render(true)},
+  addp(){S.add={name:'',birth:'',rel:'Hijo/a'};go('add')},
+  saveadd(){const n=$('#an').value.trim(),bd=$('#ab').value;S.add={name:n,birth:bd,rel:$('#ar').value};
+   if(!n||!bd){S.err='Escribe el nombre y la fecha de nacimiento.';render();return}
+   const id='p'+Date.now(),age=Math.floor((new Date(TODAY)-new Date(bd))/31557600000);
+   const lst=[['bcg',0],['hepb',0],['penta',0],['srp',1],['dpt',4],['flu',1],['td',18]].filter(x=>age>=x[1]).map(x=>V(x[0],'unknown'));
+   S.profiles[id]={id,name:n,rel:S.add.rel,age:age+(age===1?' año':' años'),color:'#8A3B5C',vacs:lst.length?lst:[V('bcg','unknown')]};S.cur=id;S.stack=['profiles'];S.view='history';toast(`Perfil de ${n} creado. Su historial aún no está registrado.`)},
+  open(){S.vid=v;go('detail')},
+  back(){back()},
+  tab(){S.stack=[];S.view=v;if(v==='history'&&!cur()){S.cur='mateo'}render(true)},
+  mark(){S.mark={date:TODAY,lote:''};S.over='mark';render()},
+  confirmmark(){const x=vac();x.status='applied';x.date=$('#md').value||TODAY;x.lote=$('#ml').value.trim()||null;x.src='declared';x.remind=null;S.over=null;render();toast(`${CAT[x.k][0]} quedó como declarada por ti (sin verificar).`)},
+  undo(){const x=vac();x.status='due';x.date=null;x.lote=null;x.src='demo';render();toast('Se deshizo el registro. La vacuna vuelve a estar pendiente.')},
+  rw(){const x=vac();x.remind=x.remind||{date:$('#rd').value,w:true,d:true};x.remind.w=!x.remind.w;x.remind.date=$('#rd').value;render()},
+  rdd(){const x=vac();x.remind=x.remind||{date:$('#rd').value,w:true,d:true};x.remind.d=!x.remind.d;x.remind.date=$('#rd').value;render()},
+  saverem(){const x=vac();const r=x.remind||{w:true,d:true};r.date=$('#rd').value;x.remind=r;render();toast('Recordatorio guardado en este teléfono.')},
+  review(){S.review={photo:false,note:''};go('review')},
+  photo(){S.review.photo=true;S.review.note=$('#rn').value;render()},
+  sendrev(){const x=vac();S.folio++;x.rev='REV-'+String(S.folio).padStart(4,'0');S.stack.pop();S.view='detail';render(true);toast(`Solicitud enviada. Folio ${x.rev}.`)},
+  camp(){S.cid=v;go('campaign')},
+  pdf(){toast('PDF de demostración preparado (simulado). En el producto real se generaría un archivo.')},
+  qr(){S.over='qr';render()},
+  notif(){showNotif()},
+  opennotif(){S.notif=false;S.cur='mateo';S.vid='dpt';S.stack=['profiles','history'];S.view='detail';render(true)}
+ };
+ if(act[a])act[a]();
+});
+function showNotif(){S.notif=true;render();clearTimeout(showNotif.t);showNotif.t=setTimeout(()=>{S.notif=false;render()},7000)}
+document.addEventListener('input',e=>{
+ if(e.target.id==='rn')S.review.note=e.target.value;
+ if(e.target.id==='an')S.add.name=e.target.value;
+ if(e.target.id==='ab')S.add.birth=e.target.value;
+});
+/* guía lateral */
+const STEPS=[['Acceso con PIN',()=>{fresh();render(true)}],['Elegir familiar',()=>{S.stack=['pin'];S.view='profiles';render(true)}],['Historial de Mateo',()=>{S.cur='mateo';S.stack=['pin','profiles'];S.view='history';render(true)}],['Detalle y recordatorio (DPT)',()=>{S.cur='mateo';S.vid='dpt';S.stack=['pin','profiles','history'];S.view='detail';render(true)}],['Marcar como aplicada',()=>{S.cur='mateo';S.vid='dpt';S.stack=['pin','profiles','history'];S.view='detail';S.over='mark';S.mark={date:TODAY,lote:''};render(true)}],['Campañas y disponibilidad',()=>{S.stack=['pin','profiles'];S.view='campaigns';render(true)}],['Comprobante (PDF / QR)',()=>{S.stack=['pin','profiles'];S.view='proof';render(true)}],['Solicitar revisión del registro',()=>{S.cur='mateo';S.vid='dpt';S.review={photo:false,note:''};S.stack=['pin','profiles','history','detail'];S.view='review';render(true)}]];
+$('#steps').innerHTML=STEPS.map((s,i)=>`<li><button data-s="${i+1}"><b>${i+1}</b>${s[0]}</button></li>`).join('');
+$('#steps').addEventListener('click',e=>{const b=e.target.closest('button');if(b){S.over=null;S.notif=false;STEPS[b.dataset.s-1][1]()}});
+$('#bNotif').onclick=showNotif;
+$('#bOff').onclick=()=>{S.offline=!S.offline;render()};
+$('#bReset').onclick=()=>{fresh();render(true)};
+$('#legend').innerHTML=['applied','due','late','unknown','future'].map(k=>pill(k)).join('')+`<span class="pill rev">${ic('hour','s')}En revisión</span><span class="sub" style="font-size:12px">“Verificada por una institución” no existe en el prototipo: requiere una institución emisora (pendiente).</span>`;
+render(true);
+</script>
+</body>
+</html>
